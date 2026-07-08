@@ -4,13 +4,13 @@ from pathlib import Path
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from ormsgpack import unpackb
 
 from rec.broker import Broker
 from rec.eid import BROADCAST_ADDRESS, EID
 from rec.job import Job, JobInfo, job_infos_from_dicts
 from rec.messages import BundleData, BundleType
 from rec.node import NodeType
+from rec.serialization import decode
 from tests.utils.helpers import dtn_eid, randomized_job_info
 
 
@@ -88,7 +88,7 @@ async def test_broker_job_query(
     assert not response.error
     assert response.payload
 
-    list_jobs = unpackb(response.payload)
+    list_jobs = decode(response.payload)
     assert isinstance(list_jobs, dict)
 
     assert Counter(["completed", "queued"]) == Counter(list_jobs.keys())

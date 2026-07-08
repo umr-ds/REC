@@ -7,8 +7,6 @@ from enum import IntEnum
 from typing import Any, Self, override
 from uuid import UUID, uuid4
 
-from ormsgpack import packb, unpackb
-
 from rec.eid import EID
 from rec.errors import (
     EndpointMustNotBeNoneError,
@@ -22,6 +20,7 @@ from rec.errors import (
     UnexpectedErrorForSuccessError,
     UnknownMessageTypeIdError,
 )
+from rec.serialization import decode, encode
 
 # (2^64)-1
 MSGPACK_MAXINT = 18446744073709551615
@@ -255,7 +254,7 @@ class BundleData:
 
 def serialize(message: Message) -> bytes:
     data = message.dictify()
-    return packb(data)
+    return encode(data)
 
 
 MESSAGE_CONSTRUCTORS: dict[MessageType, Callable[[dict[str, Any]], Message]] = {
@@ -286,7 +285,7 @@ def _get_constructor(msg_type: MessageType) -> Callable[[dict[str, Any]], Messag
 
 def deserialize(serialized: bytes) -> Message:
     try:
-        data_dict: dict[str, Any] = unpackb(serialized)
+        data_dict: dict[str, Any] = decode(serialized)
 
         msg_type = _extract_message_type(data_dict)
         constructor = _get_constructor(msg_type)

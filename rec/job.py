@@ -7,7 +7,6 @@ from uuid import UUID, uuid4
 
 import psutil
 from aiofiles import open as async_open
-from ormsgpack import packb, unpackb
 from tomlkit import dumps, loads
 
 from rec.eid import EID
@@ -18,6 +17,7 @@ from rec.errors import (
     MissingWasmModuleError,
 )
 from rec.messages import MSGPACK_MAXINT
+from rec.serialization import decode, encode
 
 
 @dataclass(frozen=True)
@@ -110,11 +110,11 @@ class Capabilities:
             return cls.loads(data)
 
     def serialize(self) -> bytes:
-        return packb(self.dictify())
+        return encode(self.dictify())
 
     @classmethod
     def deserialize(cls, serialized: bytes) -> Self:
-        deserialized = unpackb(serialized)
+        deserialized = decode(serialized)
         return cls.from_dict(deserialized)
 
     def is_capable_of(self, caps: Self) -> bool:
@@ -231,11 +231,11 @@ class JobInfo:
             return cls.loads(data)
 
     def serialize(self) -> bytes:
-        return packb(self.dictify())
+        return encode(self.dictify())
 
     @classmethod
     def deserialize(cls, serialized: bytes) -> Self:
-        deserialized = unpackb(serialized)
+        deserialized = decode(serialized)
         return cls.from_dict(deserialized)
 
     def required_named_data(self) -> set[str]:
@@ -291,11 +291,11 @@ class Job:
         return cls(**data)
 
     def serialize(self) -> bytes:
-        return packb(self.dictify())
+        return encode(self.dictify())
 
     @classmethod
     def deserialize(cls, serialized: bytes) -> Self:
-        deserialized = unpackb(serialized)
+        deserialized = decode(serialized)
         return cls.from_dict(deserialized)
 
     def has_all_data(self) -> bool:
@@ -344,11 +344,11 @@ class JobResult:
         return cls(**data)
 
     def serialize(self) -> bytes:
-        return packb(self.dictify())
+        return encode(self.dictify())
 
     @classmethod
     def deserialize(cls, serialized: bytes) -> Self:
-        deserialized = unpackb(serialized)
+        deserialized = decode(serialized)
         return cls.from_dict(deserialized)
 
 

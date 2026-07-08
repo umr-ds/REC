@@ -3,13 +3,12 @@ import random
 from pathlib import Path
 from typing import override
 
-from ormsgpack import packb
-
 from rec.eid import BROADCAST_ADDRESS, EID
 from rec.job import Job, JobInfo, JobResult, dictify_job_infos
 from rec.log import LOG
 from rec.messages import BundleData, BundleType, NodeType
 from rec.node import Node
+from rec.serialization import encode
 
 ANNOUNCEMENT_INTERVAL_SECONDS = 10
 
@@ -150,7 +149,7 @@ class Broker(Node):
                 "queued": dictify_job_infos(queued_job_infos),
             }
 
-        jobs_bytes = packb(jobs)
+        jobs_bytes = encode(jobs)
         bundle_response = BundleData(
             type=BundleType.JOB_LIST,
             source=self._node_id,
