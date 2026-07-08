@@ -125,6 +125,13 @@ class Executor(Node):
                 LOG.warning(f"Job data name {name} is already taken. Ignoring.")
 
         async with self._state_mutex:
+            if any(
+                pending.job_id == job.metadata.job_id
+                for _, pending in self._pending_jobs
+            ):
+                # In case a job bundle is sent or received multiple times.
+                LOG.info(f"Ignoring duplicate job bundle: {job.metadata.job_id}")
+                return
             self._pending_jobs.append((bundle.source, job.metadata))
         async with self._job_ready_cv:
             self._job_ready_cv.notify_all()

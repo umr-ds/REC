@@ -575,3 +575,19 @@ class TestExecutorRunJob:
 
         responses = await executor._handle_bundle(bundle=submit_bundle)
         assert not responses
+
+    @pytest.mark.asyncio
+    async def test_duplicate_job_bundle_queued_once(
+        self, executor: Executor, sample_job: Job
+    ) -> None:
+        submit_bundle = BundleData(
+            type=BundleType.JOB_SUBMIT,
+            source=EID.dtn("client"),
+            destination=EID.dtn("executor"),
+            payload=sample_job.serialize(),
+        )
+
+        await executor._handle_bundle(bundle=submit_bundle)
+        await executor._handle_bundle(bundle=submit_bundle)
+
+        assert len(executor._pending_jobs) == 1
